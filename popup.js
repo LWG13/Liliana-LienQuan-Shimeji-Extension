@@ -23,3 +23,4 @@ document.getElementById("summon-pet")?.addEventListener("click", () => {
 document.getElementById("toggle-sit")?.addEventListener("click", () => {
     sendToActiveTab({ type: "LILIANA_TOGGLE_SIT" });
 });
+

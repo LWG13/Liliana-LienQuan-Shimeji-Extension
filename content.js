@@ -57,7 +57,6 @@ function initLiliana() {
     const imageScale = {
         standing: 2.3,
         sitting: 2.3,
-        sittingFall: 1.65,
         left: 2.3,
         right: 2.3,
         interaction: 2.32,
@@ -74,7 +73,6 @@ function initLiliana() {
 
     const petImages = {
         sitting: assetUrl("asset/sitting/sitting1.png"),
-        sittingFall: assetUrl("asset/sitting/sitting4.png"),
         standing: assetUrl("asset/standing/standing.png"),
         dragging: assetUrl("asset/interaction/drag.png"),
         falling: assetUrl("asset/interaction/falling.png"),
@@ -124,7 +122,7 @@ function initLiliana() {
     }
 
     /**
-     * @param {"sitting" | "sittingFall" | "standing" | "dragging" | "falling" | "left" | "right"} pose
+     * @param {"sitting" | "standing" | "dragging" | "falling" | "left" | "right"} pose
      */
     function setPose(pose) {
         if (!petImages[pose]) {
@@ -183,18 +181,14 @@ function initLiliana() {
 
         stopWalking();
         stopSittingAnimation();
-        stopSittingFall();
-        clearTimeout(standingTimer)
         interact(action);
     });
 
     petVisual.addEventListener("dblclick", () => {
         clearTimeout(interactionTimer);
-        clearTimeout(standingTimer)
         petState.interaction = null;
         liliana.classList.remove("interacting");
         petVisual.classList.remove("interacting");
-        stopSittingFall();
 
         const nextPose = petState.pose === "standing" ? "sitting" : "standing";
         setPose(nextPose);
@@ -215,6 +209,7 @@ function initLiliana() {
     let offsetY = 0;
     const DRAG_THRESHOLD = 5;
 
+    // Chỉ bắt sự kiện kéo khi chạm vào vùng nhân vật (bỏ qua 25% khoảng trống phía trên đầu)
     petVisual.addEventListener("pointerdown", (event) => {
         if (event.button !== 0 && event.pointerType === "mouse") return;
 
@@ -249,8 +244,7 @@ function initLiliana() {
             petState.interaction = null;
             liliana.classList.remove("interacting");
             petVisual.classList.remove("interacting");
-            stopSittingFall();
-            clearTimeout(standingTimer)
+
             isDragging = true;
             petState.isDragging = true;
             liliana.classList.add("dragging");
@@ -311,61 +305,14 @@ function initLiliana() {
         if (fallAnimationId !== null) {
             cancelAnimationFrame(fallAnimationId);
             fallAnimationId = null;
+            setPose("standing");
         }
         velocityY = 0;
         hitboxes.style.pointerEvents = "auto";
     }
 
-    let sittingFallTimer = null;
-
-    function stopSittingFall() {
-        if (sittingFallTimer !== null) {
-            clearTimeout(sittingFallTimer);
-            sittingFallTimer = null;
-        }
-    }
-    let standingTimer = null
-    function stopStandingTimer() {
-        if (standingTimer !== null) {
-            clearTimeout(standingTimer);
-            standingTimer = null;
-        }
-    }
-
-    /**
-     * @param {function} onComplete
-     */
-    function startSittingFall(onComplete) {
-        stopSittingFall();
-        stopStandingTimer();
-        setPose("sittingFall");
-        hitboxes.style.pointerEvents = "auto";
-
-        sittingFallTimer = setTimeout(() => {
-            sittingFallTimer = null;
-            if (isDragging || petState.pose !== "sittingFall" || liliana.style.display === "none") return;
-
-            setPose("standing");
-            standingTimer = setTimeout(() => {
-                standingTimer = null;
-                if (
-                    isDragging ||
-                    petState.interaction !== null ||
-                    petState.pose !== "standing" ||
-                    liliana.style.display === "none"
-                ) {
-                    return;
-                }
-                if (typeof onComplete === "function") {
-                    onComplete();
-                }
-            }, 1000);
-        }, 1500);
-    }
-
     function startFalling() {
         stopFalling();
-        stopSittingFall();
         setPose("falling");
         hitboxes.style.pointerEvents = "none";
 
@@ -382,9 +329,7 @@ function initLiliana() {
                 nextTop = maxTop;
                 liliana.style.top = `${nextTop}px`;
                 stopFalling();
-                startSittingFall(() => {
-                    startWalking();
-                });
+                startWalking();
                 return;
             }
 
@@ -403,10 +348,8 @@ function initLiliana() {
         return (
             !isDragging &&
             fallAnimationId === null &&
-            sittingFallTimer === null &&
             petState.interaction === null &&
-            petState.pose !== "sitting" &&
-            petState.pose !== "sittingFall"
+            petState.pose !== "sitting"
         );
     }
 
@@ -453,6 +396,7 @@ function initLiliana() {
         if (walkAnimationId !== null) {
             cancelAnimationFrame(walkAnimationId);
         }
+
         if (petState.direction !== "left" && petState.direction !== "right") {
             petState.direction = Math.random() < 0.5 ? "left" : "right";
             setPose(`${petState.direction}`);
@@ -508,7 +452,7 @@ function initLiliana() {
             const clampedTop = Math.min(Math.max(0, rect.top), maxTop);
             liliana.style.top = `${clampedTop}px`;
 
-            if (!isDragging && fallAnimationId === null && sittingFallTimer === null && clampedTop < maxTop - 1) {
+            if (!isDragging && fallAnimationId === null && clampedTop < maxTop - 1) {
                 startFalling();
             }
         }
@@ -529,8 +473,6 @@ function initLiliana() {
                     if (!isHidden) {
                         stopWalking();
                         stopSittingAnimation();
-                        stopSittingFall();
-                        clearTimeout(standingTimer)
                         if (fallAnimationId !== null) {
                             cancelAnimationFrame(fallAnimationId);
                             fallAnimationId = null;
@@ -546,9 +488,6 @@ function initLiliana() {
                     petState.interaction = null;
                     liliana.classList.remove("interacting");
                     petVisual.classList.remove("interacting");
-                    stopSittingFall();
-                    stopStandingTimer();
-                    stopWalking();
 
                     const rect = liliana.getBoundingClientRect();
                     const centerLeft = Math.max(0, (window.innerWidth - rect.width) / 2);
@@ -568,8 +507,6 @@ function initLiliana() {
                     petState.interaction = null;
                     liliana.classList.remove("interacting");
                     petVisual.classList.remove("interacting");
-                    stopSittingFall();
-                    clearTimeout(standingTimer)
 
                     if (fallAnimationId !== null) {
                         cancelAnimationFrame(fallAnimationId);
@@ -584,7 +521,7 @@ function initLiliana() {
                         stopWalking();
                         startSittingAnimation();
                     } else {
-                        startWalking();
+                        stopWalking();
                         stopSittingAnimation();
                     }
                 }

@@ -164,27 +164,12 @@
     left: auto;
     right: 10%;
     width: 30%;
+    width: 30%;
     height: 45%;
 }
 
 /* =========================
    4. DRAG STATE
-========================= */
-
-#liliana.dragging {
-    cursor: grabbing;
-}
-tail-area {
-    top: 35%;
-    left: auto;
-    right: 10%;
-    width: 30%;
-    height: 45%;
-}
-
-
-/* =========================
-   7. DRAG STATE
 ========================= */
 
 #liliana.dragging {
