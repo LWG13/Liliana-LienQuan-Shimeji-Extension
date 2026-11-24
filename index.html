@@ -1,0 +1,40 @@
+
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Liliana Web Pet</title>
+
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <main id="pet-container">
+
+        <!-- Liliana -->
+        <div id="liliana" class="pet sitting">
+           <div id="pet-visual">
+        <img
+            id="pet-image"
+            src="asset/standing/standing.png"
+            alt="Liliana"
+            draggable="false"
+        >
+
+        <div id="hitboxes">
+            <div class="hitbox" id="head-area" data-action="head"></div>
+            <div class="hitbox" id="ear-area" data-action="ear"></div>
+            <div class="hitbox" id="body-area" data-action="body"></div>
+            <div class="hitbox" id="tail-area" data-action="tail"></div>
+        </div>
+           </div>
+        </div>
+
+    </main>
+
+    <script src="content.js"></script>
+
+</body>
+</html>

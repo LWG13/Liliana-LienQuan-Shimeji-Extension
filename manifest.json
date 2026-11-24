@@ -1,0 +1,25 @@
+{
+  "manifest_version": 3,
+  "name": "Liliana Web Pet",
+  "version": "1.0.0",
+  "description": "Liliana interactive web pet.",
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "Liliana Web Pet"
+  },
+  "content_scripts": [
+    {
+      "matches": ["http://*/*", "https://*/*"],
+      "css": ["style.css"],
+      "js": ["content.js"],
+      "run_at": "document_idle"
+    }
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": ["asset/*/*.png"],
+      "matches": ["http://*/*", "https://*/*"],
+      "use_dynamic_url": false
+    }
+  ]
+}
